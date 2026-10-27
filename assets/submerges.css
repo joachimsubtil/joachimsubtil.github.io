@@ -1,0 +1,27 @@
+/* ==========================================================
+   Page projet « Submergés » — même structure que les autres
+   projets, avec l'ambiance bleu nuit de l'expo.
+   Se charge après style.css.
+   ========================================================== */
+
+body.theme-submerges {
+  --bg: #04080f;
+  --bg-2: #0a1320;
+  --bg-3: #112033;
+  --line: #1a2a3f;
+  --text-2: #9fb0c3;
+  --text-3: #5d7186;
+  --accent: #7fd6ff;
+}
+.theme-submerges .site-header { background: rgba(4, 8, 15, .78); }
+.theme-submerges .play:hover span { background: var(--accent); border-color: var(--accent); }
+.theme-submerges .next:hover .display { color: var(--accent); }
+.theme-submerges ::selection { background: var(--accent); color: var(--bg); }
+
+/* ---------- La question de l'interview ---------- */
+.question {
+  font-family: var(--font-display); font-stretch: 100%; font-weight: 600;
+  font-size: clamp(22px, 3vw, 34px); line-height: 1.2;
+  color: var(--text-2); max-width: 30ch; margin: 0 0 clamp(28px, 4vw, 44px);
+}
+.answer { color: var(--accent); font-weight: 500; margin: 20px 0 0; }

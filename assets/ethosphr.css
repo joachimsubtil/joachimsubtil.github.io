@@ -1,0 +1,11 @@
+/* ==========================================================
+   Page projet « Ethosph'R » — le vert de l'association
+   en couleur d'accent. Se charge après style.css.
+   ========================================================== */
+
+body.theme-ethosphr { --accent: #4cc25a; }
+.theme-ethosphr .play:hover span { background: var(--accent); border-color: var(--accent); }
+.theme-ethosphr .next:hover .display { color: var(--accent); }
+.theme-ethosphr .big-stat {
+  background: radial-gradient(120% 140% at 0% 100%, rgba(76, 194, 90, .2), transparent 55%), var(--bg-2);
+}
