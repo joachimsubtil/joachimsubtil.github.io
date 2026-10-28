@@ -78,7 +78,7 @@ if ('IntersectionObserver' in window) {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.12 });
+  }, { threshold: 0, rootMargin: '0px 0px -10% 0px' }); // dès que le haut du bloc entre à l'écran, même pour une très longue galerie
   reveals.forEach((el) => observer.observe(el));
 } else {
   reveals.forEach((el) => el.classList.add('is-visible'));
