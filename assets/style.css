@@ -520,3 +520,18 @@ video:-webkit-full-screen { object-fit: contain; background: #000; }
 .home-hero h1.display { font-size: min(clamp(56px, 13vw, 190px), calc((min(100vw, var(--max)) - 2 * var(--gutter)) / 7.1)); }
 .project-hero h1.display { font-size: min(clamp(54px, 12vw, 168px), calc((min(100vw, var(--max)) - 2 * var(--gutter)) / 7.6)); }
 .expo-hero h1.display { font-size: min(clamp(52px, 11vw, 160px), calc((min(100vw, var(--max)) - 2 * var(--gutter)) / 7.6)); }
+
+/* ---------- Accueil : encart des logiciels maîtrisés ---------- */
+.software { margin-top: clamp(40px, 6vw, 64px); }
+.software .kicker { margin-bottom: 16px; }
+.software-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.software-list li { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-2); }
+.software-list strong { display: block; font-weight: 600; color: var(--text); }
+.software-list li > span:last-child { font-size: 13px; color: var(--text-3); line-height: 1.35; }
+.ico { flex: none; width: 48px; height: 48px; display: block; }   /* icônes officielles des applications */
+
+/* ---------- À propos (ordinateur) : en bas de section, le bas de la photo s'aligne sur le bas de l'encart « Je recherche une alternance »
+   la légende se place sous la photo sans compter dans sa hauteur ---------- */
+@media (min-width: 821px) {
+  .about-photo figcaption { position: absolute; top: 100%; left: 0; right: 0; }
+}
