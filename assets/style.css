@@ -287,10 +287,9 @@ video:-webkit-full-screen { object-fit: contain; background: #000; }
 /* ---------- Image cliquable (clic = agrandir) ---------- */
 .gallery-item {
   display: block; padding: 0; border: 1px solid var(--line); border-radius: var(--radius);
-  overflow: hidden; background: var(--bg-2); cursor: zoom-in;
+  position: relative; overflow: hidden; background: var(--bg-2); cursor: zoom-in;
 }
-.gallery-item img { width: 100%; height: auto; transition: transform .5s ease; }
-.gallery-item:hover img { transform: scale(1.02); }
+.gallery-item img { width: 100%; height: auto; }
 
 .lightbox {
   width: 100vw; height: 100vh; max-width: none; max-height: none; margin: 0; padding: 24px;
@@ -484,7 +483,6 @@ video:-webkit-full-screen { object-fit: contain; background: #000; }
 .cell { flex: var(--r) 1 0; min-width: 0; margin: 0; }
 .cell .gallery-item { display: block; width: 100%; padding: 0; border: 0; border-radius: 0; background: none; }
 .cell img { width: 100%; height: auto; display: block; }
-.cell .gallery-item:hover img { transform: none; opacity: .9; }
 @media (max-width: 560px) { .row { flex-direction: column; } }
 
 /* ---------- Galerie simple (page Submergés : affiche + post, puis carrousel) ---------- */
@@ -535,3 +533,112 @@ video:-webkit-full-screen { object-fit: contain; background: #000; }
 @media (min-width: 821px) {
   .about-photo figcaption { position: absolute; top: 100%; left: 0; right: 0; }
 }
+
+/* ==========================================================
+   Animations « caméra » (déclenchées par main.js)
+   ========================================================== */
+
+/* Barre de montage : tête de lecture rouge en haut de l'écran */
+.scrub { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 60; pointer-events: none; }
+.scrub span {
+  display: block; height: 100%; background: var(--rec);
+  transform: scaleX(var(--p, 0)); transform-origin: left; box-shadow: 0 0 10px rgba(255, 59, 47, .7);
+}
+
+/* Compteur REC en bas à droite */
+.timecode {
+  position: fixed; right: var(--gutter); bottom: 18px; z-index: 40; pointer-events: none;
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 11px; border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 80%, transparent); border: 1px solid var(--line); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  font-size: 11px; font-weight: 600; letter-spacing: .1em; color: var(--text-2); font-variant-numeric: tabular-nums;
+}
+.timecode::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--rec); animation: blink 1.2s steps(1) infinite; }
+@keyframes blink { 50% { opacity: .15; } }
+
+/* Chiffres : largeur fixe des chiffres pendant le décompte */
+.num { font-variant-numeric: tabular-nums; }
+
+/* Titre en générique (chaque lettre garde la couleur de son mot : blanc, ou gris pour la ponctuation) */
+main h1.display .letter { color: inherit; }
+.is-titling .letter { animation: titling .7s ease-out both; animation-delay: calc(.15s + var(--i) * 45ms); }
+@keyframes titling {
+  0% { opacity: 0; color: var(--rec); text-shadow: 0 0 24px rgba(255, 59, 47, .9); }
+  45% { opacity: 1; color: var(--rec); text-shadow: 0 0 14px rgba(255, 59, 47, .6); }
+}
+
+/* Photos en volet */
+.wipe { clip-path: inset(100% 0 0 0); transition: clip-path 1s cubic-bezier(.7, 0, .2, 1); transition-delay: calc(var(--i, 0) * 110ms); }
+.wipe.is-shown { clip-path: inset(0 0 0 0); }
+
+/* Curseur viseur (ordinateur) : point rouge + cadre de mise au point aux 4 coins */
+html.has-cursor, html.has-cursor * { cursor: none !important; }
+/* la vraie flèche revient sur une vidéo en lecture, en plein écran et dans une photo agrandie */
+html.has-cursor .is-playing video, html.has-cursor :fullscreen, html.has-cursor :fullscreen *,
+html.has-cursor:has(dialog[open]), html.has-cursor:has(dialog[open]) * { cursor: auto !important; }
+html:has(dialog[open]) .cursor, .cursor.is-native { opacity: 0 !important; }
+
+.cursor { position: fixed; top: 0; left: 0; z-index: 70; pointer-events: none; opacity: 0; transition: opacity .3s; }
+.cursor.is-on { opacity: 1; }
+.cursor > span { position: absolute; left: 0; top: 0; }
+.cursor-dot { width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: var(--rec); transition: opacity .2s; }
+.cursor-frame::before {
+  content: ""; position: absolute; left: 0; top: 0; width: 36px; height: 36px; translate: -50% -50%;
+  color: var(--text); opacity: .85;
+  --c: 9px; --w: 1.5px;
+  background:
+    linear-gradient(currentColor, currentColor) top left / var(--c) var(--w),
+    linear-gradient(currentColor, currentColor) top left / var(--w) var(--c),
+    linear-gradient(currentColor, currentColor) top right / var(--c) var(--w),
+    linear-gradient(currentColor, currentColor) top right / var(--w) var(--c),
+    linear-gradient(currentColor, currentColor) bottom left / var(--c) var(--w),
+    linear-gradient(currentColor, currentColor) bottom left / var(--w) var(--c),
+    linear-gradient(currentColor, currentColor) bottom right / var(--c) var(--w),
+    linear-gradient(currentColor, currentColor) bottom right / var(--w) var(--c);
+  background-repeat: no-repeat;
+  transition: width .3s cubic-bezier(.2, .8, .2, 1), height .3s cubic-bezier(.2, .8, .2, 1), color .2s, scale .15s;
+}
+/* sur un lien : le cadre se resserre et passe au rouge, comme une mise au point */
+.cursor.is-link .cursor-frame::before { width: 26px; height: 26px; color: var(--rec); opacity: 1; }
+/* sur un projet, une vidéo ou une photo : le cadre s'ouvre et affiche l'action */
+.cursor.has-label .cursor-frame::before { width: 96px; height: 96px; color: #fff; opacity: 1; }
+.cursor.has-label .cursor-dot { opacity: 0; }
+.cursor-label:empty { display: none; }
+.cursor-label {
+  translate: -50% -50%; white-space: nowrap; padding: 6px 11px; border-radius: 999px;
+  background: var(--rec); color: #fff; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+}
+/* au clic : le cadre se resserre un instant, comme un déclencheur */
+.cursor.is-pressed .cursor-frame::before { scale: .82; }
+
+/* Vignettes et photos en 3D */
+.tilt { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .6s ease; }
+.tilt.is-tilting { transition: transform .12s linear; }
+
+/* Bandeau défilant des clients (accueil) */
+.marquee { padding: 0 0 clamp(56px, 8vw, 96px); overflow: hidden; }
+.marquee-window {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track { display: flex; width: max-content; animation: marquee 60s linear infinite; }
+.marquee-window:hover .marquee-track { animation-play-state: paused; }
+.marquee-track ul { display: flex; list-style: none; margin: 0; padding: 0; }
+.marquee-track li {
+  display: flex; align-items: center; white-space: nowrap;
+  font-family: var(--font-display); font-stretch: 112%; font-weight: 800; text-transform: uppercase;
+  font-size: clamp(26px, 3.6vw, 48px); line-height: 1.1; color: var(--text-3); transition: color .2s;
+}
+.marquee-track li:hover { color: var(--text); }
+.marquee-track li::after { content: ""; width: .22em; height: .22em; border-radius: 50%; background: var(--rec); margin: 0 .8em; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* Moins d'animations demandées : tout reste en place */
+@media (prefers-reduced-motion: reduce) {
+  .timecode::before { animation: none; }
+  .marquee-track { animation: none; width: auto; }
+  .marquee-track ul { flex-wrap: wrap; row-gap: 6px; padding: 0 var(--gutter); }
+  .marquee-track ul[aria-hidden] { display: none; }
+  .marquee-window { -webkit-mask-image: none; mask-image: none; }
+}
+@media print { .scrub, .timecode, .cursor { display: none; } }
