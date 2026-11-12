@@ -211,7 +211,7 @@ if (title && !calm) {
 }
 
 // Photos en volet : chaque image se dévoile de bas en haut en arrivant à l'écran
-const wipes = document.querySelectorAll('.cell, .gallery > .gallery-item, .strip, .about-photo img');
+const wipes = document.querySelectorAll('.cell, .gallery > .gallery-item, .strip');
 
 if (!calm && 'IntersectionObserver' in window) {
   const wipeObserver = new IntersectionObserver((entries) => {
@@ -246,7 +246,7 @@ if (finePointer) {
   const label = cursor.querySelector('.cursor-label');
 
   // le texte affiché dans le viseur selon ce qu'on survole
-  const labels = [['.project-card', 'Voir'], ['.play', 'Lecture'], ['.js-zoom', 'Agrandir']];
+  const labels = [['.project-card', 'Voir'], ['.play', 'Lecture'], ['.js-zoom', 'Agrandir'], ['.photo-promo', 'Découvrir']];
   labels.forEach(([selector, text]) => document.querySelectorAll(selector).forEach((el) => { el.dataset.cursor = text; }));
 
   let x = -100, y = -100, cx = -100, cy = -100;
@@ -296,4 +296,43 @@ if (finePointer) {
       });
     });
   }
+}
+
+// Tuile du portfolio photo : elle apparaît une fois, en douceur, quand elle arrive à l'écran (comme les photos du portfolio photo)
+const promos = document.querySelectorAll('.js-promo');
+if (promos.length && 'IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const promoObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      const promo = entry.target;
+      promoObserver.unobserve(promo);
+      promo.classList.add('is-entering', 'is-in');
+      promo.classList.remove('is-wait');
+      setTimeout(() => promo.classList.remove('is-entering'), 2200);   // ensuite, le survol répond sans attendre
+    });
+  }, { rootMargin: '0px 0px -12% 0px' });
+  promos.forEach((promo) => {
+    // cachée d'un coup au chargement (sans fondu), puis elle apparaît en arrivant à l'écran
+    promo.classList.add('no-anim', 'is-wait');
+    void promo.offsetWidth;
+    promo.classList.remove('no-anim');
+    promoObserver.observe(promo);
+  });
+} else {
+  promos.forEach((promo) => promo.classList.add('is-in'));
+}
+
+// Portrait « À propos » : il apparaît comme les photos du portfolio photo (fondu, flou qui se dissipe, légère remontée),
+// sans volet ni changement de taille
+const portrait = document.querySelector('.about-photo');
+if (portrait && 'IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  portrait.classList.add('no-anim', 'appear');
+  void portrait.offsetWidth;
+  portrait.classList.remove('no-anim');
+  const portraitObserver = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    portrait.classList.add('is-in');
+    portraitObserver.disconnect();
+  }, { rootMargin: '0px 0px -10% 0px' });
+  portraitObserver.observe(portrait);
 }
